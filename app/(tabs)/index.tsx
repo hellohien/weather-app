@@ -7,12 +7,10 @@ import { BasicInput } from "@/components/BasicInput";
 import { useState } from "react";
 import { CheckIcon } from "@/components/Icons/CheckIcon";
 import { geocode, RequestType, setDefaults } from "react-geocode";
-
-// Set default response language and region (optional).
-// This sets default values for language and region for geocoding requests.
+import { GOOGLE_MAPS_API, OPEN_WEATHER_MAP_API } from "@env";
 
 setDefaults({
-  key: "AIzaSyDJmBEg0Jcm_xTZaq2TakpBKVCAO3SDu-Y", // Your API key here.
+  key: GOOGLE_MAPS_API, // Your API key here.
   language: "en", // Default language for responses.
   region: "es", // Default region for responses.
 } as any);
@@ -28,14 +26,13 @@ export default function HomeScreen() {
         region: "sp",
       } as any);
       const location = resp.results[0].geometry.location;
-      // console.log("location here", JSON.stringify(location, null, 2));
 
       const weatherResp = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lng}&appid=e647ab74bec31b26074d6896282970bf`
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lng}&appid=${OPEN_WEATHER_MAP_API}`
       );
       const data = await weatherResp.json();
-      console.log("data here", JSON.stringify(data, null, 2));
-      setListOfWeather(data);
+      console.log("data here", JSON.stringify(data.list, null, 2));
+      setListOfWeather(data.list);
     } catch (error) {
       console.log("err in handleSubmitCity", error);
     }
@@ -95,6 +92,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 12,
+    borderColor: "#fff",
+    color: "#fff",
   },
   titleContainer: {
     marginVertical: 16,
