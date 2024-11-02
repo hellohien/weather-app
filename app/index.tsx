@@ -8,6 +8,7 @@ import { useState } from "react";
 import { CheckIcon } from "@/components/Icons/CheckIcon";
 import { geocode, RequestType, setDefaults } from "react-geocode";
 import Constants from "expo-constants";
+import { format } from "date-fns";
 
 const GOOGLE_MAPS_API = Constants.expoConfig?.extra?.GOOGLE_MAPS_API;
 const OPEN_WEATHER_MAP_API = Constants.expoConfig?.extra?.OPEN_WEATHER_MAP_API;
@@ -35,7 +36,7 @@ export default function HomeScreen() {
       );
       const data = await weatherResp.json();
       console.log("data here", JSON.stringify(data.list, null, 2));
-      setListOfWeather(data.list);
+      setListOfWeather(data.list.reverse().slice(0, 7));
     } catch (error) {
       console.log("err in handleSubmitCity", error);
     }
@@ -67,6 +68,19 @@ export default function HomeScreen() {
         >
           <CheckIcon />
         </TouchableOpacity>
+      </ThemedView>
+      <ThemedView>
+        {listOfWeather.map((el) => {
+          return (
+            <ThemedView style={styles.weatherContainer}>
+              <ThemedText>Temperature: {el?.main?.temp}</ThemedText>
+              <ThemedText>
+                Date: {format(new Date(el?.dt * 1000), "MM/dd/yyyy")}
+              </ThemedText>
+              <ThemedText>Weather: {el?.weather[0].description}</ThemedText>
+            </ThemedView>
+          );
+        })}
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -100,5 +114,10 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     marginVertical: 16,
+  },
+  weatherContainer: {
+    borderBottomColor: "gray",
+    borderBottomWidth: 1,
+    paddingVertical: 10,
   },
 });
