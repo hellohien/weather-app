@@ -7,7 +7,10 @@ import { BasicInput } from "@/components/BasicInput";
 import { useState } from "react";
 import { CheckIcon } from "@/components/Icons/CheckIcon";
 import { geocode, RequestType, setDefaults } from "react-geocode";
-import { GOOGLE_MAPS_API, OPEN_WEATHER_MAP_API } from "@env";
+import Constants from "expo-constants";
+
+const GOOGLE_MAPS_API = Constants.expoConfig?.extra?.GOOGLE_MAPS_API;
+const OPEN_WEATHER_MAP_API = Constants.expoConfig?.extra?.OPEN_WEATHER_MAP_API;
 
 setDefaults({
   key: GOOGLE_MAPS_API, // Your API key here.
@@ -92,8 +95,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 12,
-    borderColor: "#fff",
-    color: "#fff",
+    // borderColor: "gray",
+    // color: "#fff",
   },
   titleContainer: {
     marginVertical: 16,
