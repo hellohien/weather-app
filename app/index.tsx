@@ -25,6 +25,17 @@ setDefaults({
   region: "es", // Default region for responses.
 } as any);
 
+type WeatherData = {
+  main: {
+    temp: number;
+  };
+  dt: number;
+  weather: {
+    description: string;
+  }[];
+  dt_txt: string;
+};
+
 export default function HomeScreen() {
   const [city, setCity] = useState<string>("");
   const [listOfWeather, setListOfWeather] = useState<[]>([]);
@@ -42,11 +53,16 @@ export default function HomeScreen() {
       );
       const data = await weatherResp.json();
       if (!data) {
-        console.log("data error true");
         return Alert.alert("Error", "Cannot find address");
       }
-      console.log("data here", JSON.stringify(data.list, null, 2));
-      setListOfWeather(data.list.reverse().slice(0, 7));
+
+      // Filter data to get one forecast per day (around midday)
+      const dailyData = data.list.filter((item: WeatherData) =>
+        item.dt_txt.includes("12:00:00")
+      );
+
+      console.log("Daily data:", JSON.stringify(dailyData, null, 2));
+      setListOfWeather(dailyData.slice(0, 7)); // limit to the next 5 days
     } catch (error) {
       console.log("err in handleSubmitCity", error);
       return Alert.alert("Error", "Cannot find address");
@@ -81,14 +97,17 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </ThemedView>
       <ThemedView>
-        {listOfWeather.map((el) => {
+        {listOfWeather.map((weatherItem: WeatherData, key) => {
           return (
-            <ThemedView style={styles.weatherContainer}>
-              <ThemedText>Temperature: {el?.main?.temp}</ThemedText>
+            <ThemedView key={key} style={styles.weatherContainer}>
+              <ThemedText>Temperature: {weatherItem?.main?.temp}</ThemedText>
               <ThemedText>
-                Date: {format(new Date(el?.dt * 1000), "MM/dd/yyyy")}
+                Date:{" "}
+                {format(new Date(weatherItem?.dt * 1000), "E - MM/dd/yyyy")}
               </ThemedText>
-              <ThemedText>Weather: {el?.weather[0].description}</ThemedText>
+              <ThemedText>
+                Weather: {weatherItem?.weather[0].description}
+              </ThemedText>
             </ThemedView>
           );
         })}
