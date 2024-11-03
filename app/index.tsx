@@ -1,4 +1,10 @@
-import { Image, StyleSheet, Platform, TouchableOpacity } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
@@ -35,10 +41,15 @@ export default function HomeScreen() {
         `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lng}&appid=${OPEN_WEATHER_MAP_API}`
       );
       const data = await weatherResp.json();
+      if (!data) {
+        console.log("data error true");
+        return Alert.alert("Error", "Cannot find address");
+      }
       console.log("data here", JSON.stringify(data.list, null, 2));
       setListOfWeather(data.list.reverse().slice(0, 7));
     } catch (error) {
       console.log("err in handleSubmitCity", error);
+      return Alert.alert("Error", "Cannot find address");
     }
   };
 
