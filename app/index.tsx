@@ -38,7 +38,8 @@ type WeatherData = {
 
 export default function HomeScreen() {
   const [city, setCity] = useState<string>("");
-  const [listOfWeather, setListOfWeather] = useState<[]>([]);
+  const [listOfDailyWeather, setListOfDailyWeather] = useState<[]>([]);
+  const [listOfHourlyWeather, setListOfHourlyWeather] = useState<[]>([]);
 
   const handleSubmitCity = async () => {
     try {
@@ -61,8 +62,16 @@ export default function HomeScreen() {
         item.dt_txt.includes("12:00:00")
       );
 
-      console.log("Daily data:", JSON.stringify(dailyData, null, 2));
-      setListOfWeather(dailyData.slice(0, 7)); // limit to the next 5 days
+      const hourlyData = data.list
+        .reverse()
+        .filter((item: WeatherData) =>
+          item.dt_txt.includes(format(data.list[0].dt_txt, "yyyy-MM-dd"))
+        );
+
+      // console.log("Hourly data:", JSON.stringify(hourlyData, null, 2));
+      // console.log("Daily data:", JSON.stringify(dailyData, null, 2));
+      setListOfHourlyWeather(hourlyData);
+      setListOfDailyWeather(dailyData.slice(0, 7)); // limit to the next 5 days
     } catch (error) {
       console.log("err in handleSubmitCity", error);
       return Alert.alert("Error", "Cannot find address");
@@ -96,17 +105,35 @@ export default function HomeScreen() {
           <CheckIcon />
         </TouchableOpacity>
       </ThemedView>
-      <ThemedView>
-        {listOfWeather.map((weatherItem: WeatherData, key) => {
+      <ThemedView style={styles.hourlyWeatherContainer}>
+        {listOfHourlyWeather.map((weatherItem: WeatherData, key) => {
           return (
-            <ThemedView key={key} style={styles.weatherContainer}>
-              <ThemedText>Temperature: {weatherItem?.main?.temp}</ThemedText>
-              <ThemedText>
-                Date:{" "}
-                {format(new Date(weatherItem?.dt * 1000), "E - MM/dd/yyyy")}
+            <ThemedView key={key} style={styles.hourlyWeather}>
+              <ThemedText style={styles.weatherItem}>
+                {format(new Date(weatherItem?.dt_txt), "ha")}
               </ThemedText>
-              <ThemedText>
-                Weather: {weatherItem?.weather[0].description}
+              <ThemedText style={styles.weatherItem}>
+                {weatherItem?.main?.temp}°
+              </ThemedText>
+              <ThemedText style={styles.weatherItem}>
+                {weatherItem?.weather[0].description}
+              </ThemedText>
+            </ThemedView>
+          );
+        })}
+      </ThemedView>
+      <ThemedView>
+        {listOfDailyWeather.map((weatherItem: WeatherData, key) => {
+          return (
+            <ThemedView key={key} style={styles.dailyWeather}>
+              <ThemedText style={styles.weatherItem}>
+                {format(new Date(weatherItem?.dt * 1000), "E")}
+              </ThemedText>
+              <ThemedText style={styles.weatherItem}>
+                {weatherItem?.main?.temp}°
+              </ThemedText>
+              <ThemedText style={styles.weatherItem}>
+                {weatherItem?.weather[0].description}
               </ThemedText>
             </ThemedView>
           );
@@ -145,9 +172,23 @@ const styles = StyleSheet.create({
   titleContainer: {
     marginVertical: 16,
   },
-  weatherContainer: {
+  dailyWeather: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     borderBottomColor: "gray",
     borderBottomWidth: 1,
     paddingVertical: 10,
+  },
+  hourlyWeatherContainer: {
+    flexDirection: "row",
+    gap: 18,
+  },
+  hourlyWeather: {
+    flex: 1,
+    alignItems: "center", // center items horizontally within each column
+  },
+  weatherItem: {
+    flex: 1,
+    alignItems: "center", // optional, to center content within each column
   },
 });
